@@ -44,12 +44,14 @@ void check_file(string filename) {
 	if (OT == 1) {
 		string return_data;
 		ifstream out_file(filename);
+		int line_number = 1;
 		while (getline(out_file, return_data)) {
 			main_buffer = main_buffer + return_data + "\n";
+			cout << "\033[1;3" << line_number%6 << "m" << line_number << ": " << "\033[0m" << return_data << endl;
+			line_number += 1;
 		}
 		out_file.close();
 	}
-	cout << main_buffer;
 }
 
 void EXIT_FORM() {
@@ -92,7 +94,6 @@ int main(int argc, char** argv) {
 	cout << "\033c";
 	check_file(argv[1]);
 	string All_buffer;
-	//check_file_status(argv[1], All_buffer);
 	while (1) {
 		string test;
 		cout << "\033[1;3" << line_number%6 << "m" << line_number << ": " << "\033[0m";
