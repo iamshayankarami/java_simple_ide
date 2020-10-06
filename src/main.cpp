@@ -31,14 +31,25 @@ int check_files(string dir, vector<string> &files) {
 }
 
 void check_file(string filename) {
+	string main_buffer;
 	string dir = string(".");
 	vector<string> files = vector<string>();
 	check_files(dir, files);
+	int OT = 0;
 	for (unsigned int i=0; i<files.size(); i++) {
 		if (filename == files[i]) {
-			cout << "continue on file " << filename << endl;
+			OT += 1;
 		}
 	}
+	if (OT == 1) {
+		string return_data;
+		ifstream out_file(filename);
+		while (getline(out_file, return_data)) {
+			main_buffer = main_buffer + return_data + "\n";
+		}
+		out_file.close();
+	}
+	cout << main_buffer;
 }
 
 void EXIT_FORM() {
@@ -52,15 +63,17 @@ void save_file(string Filename, string input_buffer) {
 	out_file.close();
 }
 
-//void check_file_status(string filename, string input_buffer) {
-//	if (filename != "") {
-//		save_file(filename, input_buffer);
-//	} else {
-//		cout << "write your file name";
-//		cin >> filename;
-//		save_file(filename, input_buffer);
-//	}
-//}
+/*
+void check_file_status(string filename, string input_buffer) {
+	if (filename != "") {
+		save_file(filename, input_buffer);
+	} else {
+		cout << "write your file name";
+		cin >> filename;
+		save_file(filename, input_buffer);
+	}
+}
+*/
 
 void scan_each_line(string input_line, string filename, string buffer) {
 	if (input_line == "~@") {
