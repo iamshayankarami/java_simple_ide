@@ -1,6 +1,11 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <sys/types.h>
+#include <dirent.h>
+#include <errno.h>
+#include <vector>
+
 using namespace std;
 
 std::string check_os() {
@@ -11,36 +16,79 @@ std::string check_os() {
 	#endif
 }
 
+int check_files(string dir, vector<string> &files) {
+	DIR *dp;
+	struct dirent *dirp;
+	if ((dp = opendir(dir.c_str())) == NULL) {
+		cout << "ERROR(" << errno << ") opening " << dir << endl;
+		return errno;
+	}
+	while ((dirp = readdir(dp)) != NULL) {
+		files.push_back(string(dirp->d_name));
+	}
+	closedir(dp);
+	return 0;
+}
+
+void check_file(string filename) {
+	string dir = string(".");
+	vector<string> files = vector<string>();
+	check_files(dir, files);
+	for (unsigned int i=0; i<files.size(); i++) {
+		if (filename == files[i]) {
+			cout << "continue on file " << filename << endl;
+		}
+	}
+}
+
 void EXIT_FORM() {
 	cout << "\033c";
 	exit(0);
 }
 
-void creat_new_file() {
-	string filename="/tmp/MOI_FILES_SAVE/new_file.cpp";
-	std::ofstream out_file (filename);
-	out_file << "TEST" << std::endl;
+void save_file(string Filename, string input_buffer) {
+	std::ofstream out_file (Filename);
+	out_file << input_buffer << std::endl;
 	out_file.close();
 }
 
-void scan_each_line(string input_line) {
+//void check_file_status(string filename, string input_buffer) {
+//	if (filename != "") {
+//		save_file(filename, input_buffer);
+//	} else {
+//		cout << "write your file name";
+//		cin >> filename;
+//		save_file(filename, input_buffer);
+//	}
+//}
+
+void scan_each_line(string input_line, string filename, string buffer) {
 	if (input_line == "~@") {
 		EXIT_FORM();
 	}
 	if (input_line == "~!") {
-		creat_new_file();
+		save_file(filename, buffer);
 		EXIT_FORM();
 	}
+	if (input_line == "~?") {
+		cout << buffer;
+	}
 }
-
-int main() {
+int main(int argc, char** argv) {
 	int line_number=1;
 	cout << "\033c";
+	check_file(argv[1]);
+	string All_buffer;
+	//check_file_status(argv[1], All_buffer);
 	while (1) {
 		string test;
 		cout << "\033[1;3" << line_number%6 << "m" << line_number << ": " << "\033[0m";
 		getline(cin, test);
-		scan_each_line(test);
+		//string Test = line_number+test;
+		scan_each_line(test, argv[1], All_buffer);
+		if (test[0] != '~') {
+			All_buffer += test+"\n";
+		}
 		line_number += 1;
 	}
 	return 0;
